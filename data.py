@@ -28,8 +28,6 @@ def get_X(p_val: int, n_val: int, case, alpha):
         DF = pd.DataFrame(U)
         DF.to_csv('test-data/U.csv')
         X = (X + U.reshape(-1, 1)) / 2
-        # X = np.where(X >= 0, X, 0)
-        # X = np.where(X <= 1, X, 1)
     else:
         X = np.random.normal(loc=0, scale=1, size=(N + 1, P))
         pass
@@ -278,7 +276,6 @@ def check_path(real=False):
                 os.makedirs(path)
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     p = 500
     n = int(1e5)
@@ -289,4 +286,4 @@ if __name__ == '__main__':
     gene_valid(p_val=p, n_val=n, m_val=m, case=case, alpha=alpha, rho=0.1)
     exit(0)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+

@@ -156,7 +156,6 @@ def update_F():
 def get_Yntn(vec_t: np.array):
     F = np.array(pd.read_csv('test-data/F.csv', index_col=0))
     res_Y = np.zeros([N + 1])
-    # res_Y[0] = F[int(2 * vec_t[0])]
 
     for i in range(1, N + 1):
         t = int(vec_t[i])

@@ -15,16 +15,16 @@ def get_prefix(direct, natural):
         aa = 'indZ'
     return aa
 
-def get_real_name(i: int, n, direct, natural, ida, idb):
+def get_real_name(i: int, n, direct, natural):
     aa = get_prefix(direct=direct, natural=natural)
 
     N = int(n * i / 5)
-    name = 'N' + str(N) + 'alg' + str(ida) + '-' + str(idb)
+    name = 'N' + str(N)
     name1 = name + aa + 'methods'
     return name1
 
 
-def make_real_table(n, methods, ida, idb):
+def make_real_table(n, methods):
     ind_size = 5
     for direct in [False, True]:
         for natural in [False, True]:
@@ -42,7 +42,7 @@ def make_real_table(n, methods, ida, idb):
             ans = pd.DataFrame(np.zeros([ind_size, num]), columns=col_name)
 
             for i in range(5):
-                name1 = get_real_name(i=i + 1, n=n, direct=direct, natural=natural, ida=ida, idb=idb)
+                name1 = get_real_name(i=i + 1, n=n, direct=direct, natural=natural)
                 res = pd.read_csv('real-data/results/' + name1 + '.csv', index_col=0)
 
                 for method in methods:
@@ -61,11 +61,11 @@ def make_real_table(n, methods, ida, idb):
                     ans.loc[i, 'v_RR_' + method] = np.average(v_RR_dt)
 
             aa = get_prefix(direct=direct, natural=natural)
-            ans.to_csv('real-data/sum/alg' + str(ida) + '-' + str(idb) + aa + '.csv')
+            ans.to_csv('real-data/sum/' + aa + '.csv')
     return
 
 
-def make_infsup_plots(ind_size: int, ida, idb, type, methods, direct, natural, ax, ax2):
+def make_infsup_plots(ind_size: int, type, methods, direct, natural, ax, ax2):
     ax.spines['top'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -98,8 +98,7 @@ def make_infsup_plots(ind_size: int, ida, idb, type, methods, direct, natural, a
                        'indN': r'$\overline{RR}_{\rm{ipr}, N}(\omega(\mathbf{T}); \mathbf{T})$'}
     aa = get_prefix(direct=direct, natural=natural)
     x = np.arange(ind_size) * 0.2 + 0.2
-    table = pd.read_csv('real-data/sum/' + 'alg' + str(ida) + '-' + str(idb)
-                                         + aa + '.csv', index_col=0)
+    table = pd.read_csv('real-data/sum/' + aa + '.csv', index_col=0)
 
     for i in range(len(methods)):
         method = methods[i]
@@ -172,7 +171,7 @@ def make_infsup_plots(ind_size: int, ida, idb, type, methods, direct, natural, a
     ax.grid(linestyle='--', linewidth=0.5, color='gray', alpha=0.7)
 
 
-def lineplot(ida, idb, type):
+def lineplot(type):
     methods = ['est', 'ML', 'boots']
     ind_size = 5
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(13, 5),
@@ -187,14 +186,15 @@ def lineplot(ida, idb, type):
     for natural in [True, False]:
         for direct in [True, False]:
             i = 2 * (1 - int(direct)) + int(natural)
-            make_infsup_plots(ind_size=ind_size, ida=ida, idb=idb, methods=methods, type=type,
+            make_infsup_plots(ind_size=ind_size, methods=methods, type=type,
                               natural=natural, direct=direct, ax=ax_list[i], ax2=ax2_list[i])
 
     lines1, labels1 = fig.axes[0].get_legend_handles_labels()
     lines2, labels2 = fig.axes[-1].get_legend_handles_labels()
     fig.legend(lines1 + lines2, labels1 + labels2, bbox_to_anchor=(1, 1))
     plt.subplots_adjust(bottom=0.15, left=0.1, right=0.8, top=0.9, wspace=0.05, hspace=0.4)
-    plt.savefig('real-data/' + type + 'lineplot.png', dpi=600, bbox_inches='tight')
+    # plt.savefig('real-data/' + type + 'lineplot.png', dpi=600, bbox_inches='tight')
+    plt.savefig('real-data/' + type + 'lineplot.eps', format='eps', bbox_inches='tight')
     plt.show()
 
 
@@ -207,13 +207,13 @@ def check_path():
 
 if __name__ == '__main__':
     warnings.filterwarnings('ignore')
-    #check_path()
-    #methods = ['est', 'boots', 'ML']
-    #ind_size = 5
-    # make_real_table(n=39019, methods=methods, ida=11, idb=7)
+    check_path()
+    methods = ['est', 'boots', 'ML']
+    ind_size = 5
+    # make_real_table(n=8000, methods=methods)
     # 11-1 174433; 11-4 115425; 11-7 39019
 
-    lineplot(ida=11, idb=7, type='sup')
-    lineplot(ida=11, idb=7, type='inf')
-    lineplot(ida=11, idb=7, type='RR')
+    lineplot(type='sup')
+    lineplot(type='inf')
+    lineplot(type='RR')
     exit(0)

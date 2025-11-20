@@ -58,21 +58,11 @@ def boots_bound(rep_B: int, sam_B: int, po_num, F, direct, natural):
         res[i] = np.average(ans)
         v_res[i] = np.var(ans)
 
-        #denom = 1 - po_Y0[index0]
-        #num = np.average((Yb1 == 0), axis=1)
-        #tmp = np.where(denom != 0, denom, 1)
-        #ans = np.where(denom != 0, num / tmp, 0)
-        #RR_res[i] = np.average(ans)
-        #v_RR_res[i] = np.var(ans)
-
-
     inf = np.min(res)
     sup = np.max(res)
     v_inf = np.average(v_res)
     v_sup = np.average(v_res)
 
-    #RR = np.average(RR_res)
-    #v_RR = np.average(v_RR_res)
     RR, v_RR = 0, 0
     return max(inf, 0), min(1, sup), RR, v_inf, v_sup, v_RR
 
@@ -93,12 +83,6 @@ def MC_hoeff_bound(po_Y0, po_Y1):
 
 
 def theta_bound(cov_F, po_num, F, direct, natural):
-    '''
-    :param po_num: numerator P(Y(0/t)=1) vector through 0 to n
-    :param F:
-    :param direct:
-    :return:
-    '''
     N = po_num.shape[0] - 1
     L_theta = np.zeros([2])
     U_theta = np.zeros([2])

@@ -84,22 +84,14 @@ def MC_hoeff_bound(po_Y0, po_Y1):
     prob_y1 = po_Y1
     tmp = np.where(prob_y1 + prob_y0 - 1 > 0, prob_y1 + prob_y0 - 1, 0)
     inf = np.average(tmp / prob_y0)
-    # v_inf = np.var(tmp / prob_y0)
 
     tmp = np.where(prob_y1 > prob_y0, prob_y0, prob_y1)
     sup = np.average(tmp / prob_y0)
-    # v_sup = np.var(tmp / prob_y0)
 
     return inf, sup
 
 
 def theta_bound(cov_F, po_num, F, direct, natural):
-    '''
-    :param po_num: numerator P(Y(0/t)=1) vector through 0 to n
-    :param F:
-    :param direct:
-    :return:
-    '''
     N = po_num.shape[0] - 1
     L_theta = np.zeros([2])
     U_theta = np.zeros([2])
@@ -231,5 +223,5 @@ def empirical_bound(po_Y0, po_Y1, pr):
     true = pr
     inf, sup = MC_hoeff_bound(po_Y0=po_Y0[1: N + 1], po_Y1=po_Y1[1: N + 1])
     RR = np.average((1 - po_Y1[1: N + 1]) / (1 - po_Y0[1: N + 1]))
-    # v_RR = np.var((1 - po_Y1[1: N + 1]) / (1 - po_Y0[1: N + 1]))
+
     return true, inf, sup, RR

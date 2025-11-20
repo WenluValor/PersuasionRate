@@ -6,12 +6,11 @@ from realpoest import get_Yntn, setup
 import numpy as np
 import pandas as pd
 import data as dt
-from realdata import balance_T, making_T, concat_by_time
 
-def set_global(n_val, ida, idb):
+def set_global(n_val):
     global N, NAME
     N = n_val
-    NAME = 'N' + str(N) + 'alg' + str(ida) + '-' + str(idb)
+    NAME = 'N' + str(N)
 
 
 def pr_bound(methods: list, direct):
@@ -74,23 +73,16 @@ def pr_bound(methods: list, direct):
                 res.to_csv('real-data/results/' + NAME + 'indZmethods' + '.csv')
 
 
-def rename(ida, idb):
-    os.rename('real-data/T' + str(ida) + '-' + str(idb) + '.csv', 'real-data/T.csv')
-    os.rename('real-data/Y' + str(ida) + '-' + str(idb) + '.csv', 'real-data/Y.csv')
-    os.rename('real-data/X' + str(ida) + '-' + str(idb) + '.csv', 'real-data/X.csv')
-    os.rename('real-data/f_model' + str(ida) + '-' + str(idb) + '.pkl', 'real-data/f_model.pkl')
-    os.rename('real-data/pi_model' + str(ida) + '-' + str(idb) + '.pkl', 'real-data/pi_model.pkl')
-
-def run(ida, idb):
+def run():
     dt.check_path(real=True)
-    rename(ida, idb)
 
     T = np.array(pd.read_csv('real-data/T.csv', index_col=0))
-    n = len(T) - 1
+    # n = len(T) - 1
+    n = 8000
 
     for i in range(0, 5):
         n_val = int(n * (i + 1) / 5)
-        set_global(n_val=n_val, ida=ida, idb=idb)
+        set_global(n_val=n_val)
         methods = ['est', 'ML', 'boots']
         pr_bound(methods=methods, direct=True)
         print(i, 5, 'dir')
@@ -99,8 +91,5 @@ def run(ida, idb):
     # '''
 
 if __name__ == '__main__':
-    # concat_by_time(11, 1)
-    # making_T(11, 1)
-    # balance_T(11, 1)
-    run(11, 7)
+    run()
     exit(0)

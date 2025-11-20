@@ -220,7 +220,8 @@ def lineplot(rho):
     lines2, labels2 = fig.axes[-1].get_legend_handles_labels()
     fig.legend(lines1 + lines2, labels1 + labels2, bbox_to_anchor=(1, 1))
     plt.subplots_adjust(bottom=0.15, left=0.1, right=0.8, top=0.9, wspace=0.05, hspace=0.4)
-    plt.savefig('test-data/lineplot.png', dpi=600, bbox_inches='tight')
+    # plt.savefig('test-data/lineplot.png', dpi=600, bbox_inches='tight')
+    plt.savefig('test-data/lineplot.eps', format='eps', bbox_inches='tight')
     plt.show()
 
 
@@ -282,7 +283,8 @@ def barplot(rho):
 
     make_rate_plots(rho, methods)
     plt.subplots_adjust(bottom=0.15, left=0.1, right=0.8, top=0.9, wspace=0.15, hspace=0.4)
-    plt.savefig('test-data/barplot.png', dpi=600, bbox_inches='tight')
+    # plt.savefig('test-data/barplot.png', dpi=600, bbox_inches='tight')
+    plt.savefig('test-data/barplot.eps', format='eps', bbox_inches='tight')
     plt.show()
 
 
@@ -365,7 +367,8 @@ def boxplot(rho):
     # upper right for hmm, right for last two simu
     fig.legend(handles=legend_elements, loc='upper right')
     plt.tight_layout()
-    plt.savefig('test-data/boxplot.png', dpi=600, bbox_inches='tight')
+    # plt.savefig('test-data/boxplot.png', dpi=600, bbox_inches='tight')
+    plt.savefig('test-data/boxplot.eps', format='eps', bbox_inches='tight')
     plt.show()
 
 

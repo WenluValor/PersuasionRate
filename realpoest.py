@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import pickle
+from sklearn.linear_model import LogisticRegression
+from sklearn.utils import shuffle
 
 
 
@@ -10,6 +12,34 @@ def set_global(n_val):
     X = np.array(pd.read_csv('real-data/X.csv', index_col=0))[0: (N + 1)]
     T = np.array(pd.read_csv('real-data/T.csv', index_col=0))[0: (N + 1)]
     Y = np.array(pd.read_csv('real-data/Y.csv', index_col=0))[0: (N + 1)]
+
+
+def est_pi():
+    data = np.hstack((T[0: N], Y[0: N], X[1: N + 1]))
+    result = np.ravel(T[1: N + 1])
+    Xtrain, Ytrain = shuffle(data, result, random_state=115)
+
+    model = LogisticRegression()
+    model.fit(Xtrain, Ytrain)
+
+    pkl_filename = 'real-data/pi_model.pkl'
+    with open(pkl_filename, 'wb') as file:
+        pickle.dump(model, file)
+    return
+
+def est_f():
+    data = np.hstack((T[1: N + 1], Y[0: N], X[1: N + 1]))
+    result = np.ravel(Y[1: N + 1])
+    Xtrain, Ytrain = shuffle(data, result, random_state=10)
+
+    model = LogisticRegression()
+    model.fit(Xtrain, Ytrain)
+
+    pkl_filename = 'real-data/f_model.pkl'
+    with open(pkl_filename, 'wb') as file:
+        pickle.dump(model, file)
+    return
+
 
 
 def get_fpi_res():
@@ -144,4 +174,6 @@ def get_Yntn(vec_t: np.array):
 
 def setup(n_val):
     set_global(n_val=n_val)
+    est_pi()
+    est_f()
     update_F()
