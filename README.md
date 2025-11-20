@@ -1,4 +1,4 @@
-# PersuasionRate
-## Simulation Data
+# How to implement
+## Simulation data
 
-## Real-World Data
+## Real-world data
