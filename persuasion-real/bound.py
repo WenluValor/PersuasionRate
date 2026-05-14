@@ -5,67 +5,23 @@ from varest import get_var
 from poest import compute_F
 
 
-def boots_bound(rep_B: int, sam_B: int, po_num, F, direct, natural):
-    N = po_num.shape[0] - 1
-    po_Y0 = np.zeros([N + 1])
-    po_Y1 = np.zeros([N + 1])
+def IPW_bound(n_val, direct, natural):
+    N = n_val
+    hat_F = np.array(pd.read_csv('test-data/IPW_F.csv', index_col=0))
+    cov_F = np.array(pd.read_csv('test-data/var_IPW_F.csv', index_col=0))
+    po_num = np.zeros([N + 1])
     if natural:
-        T = np.array(pd.read_csv('test-data/T.csv', index_col=0))[1: N]
+        T = np.array(pd.read_csv('test-data/T.csv', index_col=0))[1: (N + 1)]
     else:
-        T = np.zeros([N - 1])
+        T = np.zeros([N])
 
-    if direct:
-        po_Y0[1: (N + 1)] = F[0] * (1 - po_num[0: N]) + F[1] * po_num[0: N]
-        po_Y1[1: (N + 1)] = F[2] * (1 - po_num[0: N]) + F[3] * po_num[0: N]
-    else:
-        list_F = np.zeros([4])
-        F = F.reshape(-1)
-        for y_val in range(2):
-            list_F += (y_val * F + (1 - y_val) * (1 - F)) * F[y_val]
-        T = T.astype(int)
-        po_Y0[2: (N + 1)] = (list_F[2 * T].reshape(-1) * (1 - po_num[0: N - 1])
-                             + list_F[2 * T + 1].reshape(-1) * po_num[0: N - 1])
-        po_Y1[2: (N + 1)] = list_F[2] * (1 - po_num[0: N - 1]) + list_F[3] * po_num[0: N - 1]
+    for i in range(1, N + 1):
+        t = int(T[i - 1])
+        po_num[i] = (hat_F[2 * t] * (1 - po_num[i - 1]) + hat_F[2 * t + 1] * po_num[i - 1])
 
-    po_Y0 = np.where(po_Y0 >= 0, po_Y0, 0)
-    po_Y0 = np.where(po_Y0 <= 1, po_Y0, 1)
-    po_Y1 = np.where(po_Y1 >= 0, po_Y1, 0)
-    po_Y1 = np.where(po_Y1 <= 1, po_Y1, 1)
-
-    res = np.zeros([rep_B])
-    v_res = np.zeros([rep_B])
-    tot_Y0 = np.array([np.random.binomial(n=1, p=prob, size=sam_B) for prob in po_Y0])
-    tot_Y1 = np.array([np.random.binomial(n=1, p=prob, size=sam_B) for prob in po_Y1])
-
-    for i in range(rep_B):
-        if N > sam_B:
-            index0 = np.random.choice(N, size=sam_B, replace=True)
-            index0 += 1
-        else:
-            index0 = np.arange(1, N + 1)
-        index1 = np.random.choice(sam_B, size=sam_B, replace=True)
-
-        Yb0 = tot_Y0[index0, :]
-        Yb0 = Yb0[:, index1]
-        Yb1 = tot_Y1[index0, :]
-        Yb1 = Yb1[:, index1]
-
-        denom = 1 - po_Y0[index0]
-        num = np.average((Yb0 == 0) & (Yb1 == 1), axis=1)
-        tmp = np.where(denom != 0, denom, 1)
-        ans = np.where(denom != 0, num / tmp, 0)
-
-        res[i] = np.average(ans)
-        v_res[i] = np.var(ans)
-
-    inf = np.min(res)
-    sup = np.max(res)
-    v_inf = np.average(v_res)
-    v_sup = np.average(v_res)
-
-    RR, v_RR = 0, 0
-    return max(inf, 0), min(1, sup), RR, v_inf, v_sup, v_RR
-
+    inf, sup, RR, v_inf, v_sup, v_RR \
+        = theta_bound(cov_F=cov_F, po_num=po_num, direct=direct, F=hat_F, natural=natural)
+    return inf, sup, RR, v_inf, v_sup, v_RR
 
 def MC_hoeff_bound(po_Y0, po_Y1):
     # pr = P(Y1 = 1 | Y0 = 0)

@@ -1,8 +1,10 @@
-from bound import (est_bound, boots_bound, ML_bound)
+from bound import (est_bound, IPW_bound, ML_bound)
 from poest import get_Yntn, setup
 import numpy as np
 import pandas as pd
 import realdata as rdt
+import os
+import shutil
 
 
 def set_global(n_val, index):
@@ -25,14 +27,15 @@ def pr_bound(methods: list, direct):
         res = pd.DataFrame(np.zeros([B, len(col_name)]), columns=col_name)
         for i in range(B):
             setup(n_val=N)
+            F = np.array(pd.read_csv('test-data/F.csv', index_col=0))
             if natural:
                 T = np.array(pd.read_csv('test-data/T.csv', index_col=0))[0: (N + 1)]
-                est_Y = get_Yntn(vec_t=T)
+                est_Y = get_Yntn(vec_t=T, F=F)
             else:
-                est_Y = get_Yntn(vec_t=np.zeros([N + 1]))
+                est_Y = get_Yntn(vec_t=np.zeros([N + 1]), F=F)
             est_Y = np.where(est_Y >= 0, est_Y, 0)
             est_num = np.where(est_Y <= 1, est_Y, 1)
-            F = np.array(pd.read_csv('test-data/F.csv', index_col=0))
+
 
             for method in methods:
                 if method == 'est':
@@ -46,9 +49,8 @@ def pr_bound(methods: list, direct):
                             print("indZ: {}".format(RR))
                             print(v_RR)
                     '''
-                elif method == 'boots':
-                    inf, sup, RR, v_inf, v_sup, v_RR = boots_bound(rep_B=200, sam_B=1000, po_num=est_num,
-                                                                   F=F, direct=direct, natural=natural)
+                elif method == 'IPW':
+                    inf, sup, RR, v_inf, v_sup, v_RR = IPW_bound(n_val=N, direct=direct, natural=natural)
                 elif method == 'ML':
                     inf, sup, RR, v_inf, v_sup, v_RR = ML_bound(n_val=N, direct=direct, natural=natural)
                 else:
@@ -88,7 +90,7 @@ def run():
     for i in range(0, 5):
         n_val = int(n * (i + 1) / 5)
         set_global(n_val=n_val, index=i)
-        methods = ['est', 'ML', 'boots']
+        methods = ['est', 'ML', 'IPW']
         pr_bound(methods=methods, direct=True)
         print(i, 5, 'dir')
         pr_bound(methods=methods, direct=False)
@@ -96,9 +98,8 @@ def run():
 
 
 def copy(name):
-    import shutil
-    src = '/Users/xu/PycharmProjects/persuasion-real/clean-yelp/2' + name + '.csv'
-    dst = '/Users/xu/PycharmProjects/persuasion-real/test-data/' + name + '.csv'
+    src = 'friend/2' + name + '.csv'
+    dst = 'test-data/' + name + '.csv'
     shutil.copy(src, dst)
 
 
@@ -108,5 +109,9 @@ if __name__ == '__main__':
     copy('T')
     copy('Y')
     copy('X')
+    paths = ['test-data', 'test-data/results']
+    for path in paths:
+        if not os.path.exists(path):
+            os.makedirs(path)
     run()
     exit(0)
