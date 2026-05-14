@@ -105,7 +105,7 @@ def update_G(pi_res):
     return G
 
 
-def compute_F(f_res, pi_res):
+def compute_F(f_res, pi_res, IPW=False):
     G = update_G(pi_res=pi_res)
 
     F = np.zeros([N + 1, 4])
@@ -133,6 +133,9 @@ def compute_F(f_res, pi_res):
         tmp = np.where(G[:, j] != 0, G[:, j], 1)
         tmp_F[:, j] = np.where(G[:, j] != 0,
                                ind_B / tmp + (G[:, j] - ind_A) / tmp * f_res[:, j], 0)
+        if IPW == True:
+            tmp_F[:, j] = np.where(G[:, j] != 0, ind_B / tmp, 0)
+
         F_no_zeros = np.where(tmp_F[:, j] == 0, np.nan, tmp_F[:, j])
 
         # Calculate the cumulative sum while ignoring NaN (formerly 0 values)
@@ -167,15 +170,22 @@ def compute_A(F):
     return A
 
 
-def update_F():
+def update_F(IPW):
     f_res, pi_res = get_fpi_res()
-    F_res, var_F = compute_F(f_res=f_res, pi_res=pi_res)
+    F_res, var_F = compute_F(f_res=f_res, pi_res=pi_res, IPW=IPW)
 
-    DF = pd.DataFrame(F_res)
-    DF.to_csv('test-data/F.csv')
+    if IPW == False:
+        DF = pd.DataFrame(F_res)
+        DF.to_csv('test-data/F.csv')
 
-    DF = pd.DataFrame(var_F)
-    DF.to_csv('test-data/var_F.csv')
+        DF = pd.DataFrame(var_F)
+        DF.to_csv('test-data/var_F.csv')
+    else:
+        DF = pd.DataFrame(F_res)
+        DF.to_csv('test-data/IPW_F.csv')
+
+        DF = pd.DataFrame(var_F)
+        DF.to_csv('test-data/var_IPW_F.csv')
     return
 
 
@@ -194,4 +204,5 @@ def setup(n_val):
     set_global(n_val=n_val)
     est_pi()
     est_f()
-    update_F()
+    update_F(False)
+    update_F(True)

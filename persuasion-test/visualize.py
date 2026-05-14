@@ -129,7 +129,7 @@ def make_infsup_plots(ind_size: int, methods, direct, natural, ax, ax2):
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
     styles = ['-', '--', '-.', ':', '--']
     markers = ['o', '^', 's', 'x']
-    label_dict = {'est': 'Doubly Robust', 'ora': 'Oracle', 'ML': 'Outcome Model\nRegression', 'boots': 'Bootstrap'}
+    label_dict = {'est': 'Doubly Robust', 'ora': 'Oracle', 'ML': 'Outcome Model\nRegression', 'IPW': 'IPW'}
     symbol_dict = {'dirZ': r'$\mathcal{L}(\overline{\tau}_{\rm{dpr}, N}(\mathbf{0}))$',
                    'dirN': r'$\mathcal{L}(\overline{\tau}_{\rm{dpr}, N}(\mathbf{T}))$',
                    'indZ': r'$\mathcal{L}(\overline{\tau}_{\rm{ipr}, N}(\omega(\mathbf{0}); \mathbf{0}))$',
@@ -143,6 +143,11 @@ def make_infsup_plots(ind_size: int, methods, direct, natural, ax, ax2):
         true = np.array(table.loc[:, 'inf_true'])
         dt = inf - true
 
+        ax.plot(x, dt, label=label_dict[method], color=colors[i],
+                linewidth=1, linestyle=styles[i], marker=markers[i],
+                markersize=5)
+
+        '''
         if method == 'boots':
             ax2.plot(x, dt, label=label_dict[method], color=colors[i],
                      linewidth=1, linestyle=styles[i], marker=markers[i],
@@ -152,6 +157,7 @@ def make_infsup_plots(ind_size: int, methods, direct, natural, ax, ax2):
             ax.plot(x, dt, label=label_dict[method], color=colors[i],
                     linewidth=1, linestyle=styles[i], marker=markers[i],
                     markersize=5)
+        '''
 
     if (aa == 'indZ') | (aa == 'indN'):
         ax.set_xlabel(r'$\log N$', fontsize=14,
@@ -160,6 +166,15 @@ def make_infsup_plots(ind_size: int, methods, direct, natural, ax, ax2):
     else:
         ax.tick_params(axis='x', width=0)
 
+    ax.set_ylabel('MSE', fontsize=14,
+                  fontweight='bold')
+    ax.tick_params(axis='y', direction='inout', color='gray',
+                   width=1, length=4)
+    ax2.tick_params(axis='y', direction='inout', color='gray',
+                    width=0.05, length=0.05)
+    ax2.set_yticklabels([])
+
+    '''
     if (aa == 'dirZ') | (aa == 'indZ'):
         ax.set_ylabel('Other Bias', fontsize=14,
                       fontweight='bold')
@@ -174,16 +189,17 @@ def make_infsup_plots(ind_size: int, methods, direct, natural, ax, ax2):
         ax2.set_ylabel('Boots Bias', fontsize=14,
                        fontweight='bold', labelpad=10)
         ax.tick_params(axis='y', width=0)
+    '''
 
     # ax.set_title(symbol_dict[aa], fontsize=15, fontweight='bold')
     ax.set_title(symbol_dict[aa], fontsize=15)
     ax.set_xticks(x)
-    ax2.grid(linestyle='--', linewidth=0.5, color='gray', alpha=0.3)
-    ax.grid(linestyle='--', linewidth=0.5, color='gray', alpha=0.7)
+    # ax2.grid(linestyle='--', linewidth=0.5, color='gray', alpha=0.3)
+    ax.grid(linestyle='--', linewidth=0.5, color='gray', alpha=0.3)
 
 
 def lineplot():
-    methods = ['est', 'ora', 'ML', 'boots']
+    methods = ['est', 'ora', 'ML', 'IPW']
     ind_size = 7
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(13, 5),
                                                  sharex='col', sharey='row')
@@ -210,11 +226,11 @@ def lineplot():
 
 
 def make_rate_plots(methods):
-    fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(9, 4), sharey='row')
-    ax_list = [ax1, ax2, ax3]
+    fig, ((ax1, ax2, ax3, ax4)) = plt.subplots(1, 4, figsize=(9, 4), sharey='row')
+    ax_list = [ax1, ax2, ax3, ax4]
 
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
-    label_dict = {'est': 'Doubly Robust', 'ora': 'Oracle', 'ML': 'Outcome Model\nRegression', 'boots': 'Bootstrap'}
+    label_dict = {'est': 'Doubly Robust', 'ora': 'Oracle', 'ML': 'Outcome Model\nRegression', 'IPW': 'IPW'}
     symbol_dict = {'dirZ inf': r'$\mathcal{L}(\overline{\tau}_{\rm{dpr}, N}(\mathbf{0}))$',
                    'dirN inf': r'$\mathcal{L}(\overline{\tau}_{\rm{dpr}, N}(\mathbf{T}))$',
                    'indZ inf': r'$\mathcal{L}(\overline{\tau}_{\rm{ipr}, N}(\omega(\mathbf{0}); \mathbf{0}))$',
@@ -259,93 +275,12 @@ def make_rate_plots(methods):
 
 
 def barplot():
-    methods = ['est', 'ora', 'ML']
+    methods = ['est', 'ora', 'ML', 'IPW']
 
     make_rate_plots(methods)
     plt.subplots_adjust(bottom=0.15, left=0.1, right=0.8, top=0.9, wspace=0.15, hspace=0.4)
     plt.savefig('test-data/barplot.png', dpi=600, bbox_inches='tight')
     # plt.savefig('test-data/barplot.eps', format='eps', bbox_inches='tight')
-    plt.show()
-
-
-def boxplot():
-    methods = ['est', 'ora', 'ML']
-    conditions = ['dirZ', 'dirN', 'indZ', 'indN']
-    data = {'dirZ': {'est': 0, 'ora': 0, 'ML': 0}, 'dirN': {'est': 0, 'ora': 0, 'ML': 0},
-            'indZ': {'est': 0, 'ora': 0, 'ML': 0}, 'indN': {'est': 0, 'ora': 0, 'ML': 0}}
-    symbol_dict = {'dirZ': r'$\mathcal{L}(\overline{\tau}_{\rm{dpr}, N}(\mathbf{0}))$',
-                   'dirN': r'$\mathcal{L}(\overline{\tau}_{\rm{dpr}, N}(\mathbf{T}))$',
-                   'indZ': r'$\mathcal{L}(\overline{\tau}_{\rm{ipr}, N}(\omega; \mathbf{0}))$',
-                   'indN': r'$\mathcal{L}(\overline{\tau}_{\rm{ipr}, N}(\omega; \mathbf{T}))$'}
-
-    for method in methods:
-        for direct in [True, False]:
-            for natural in [True, False]:
-                aa = get_prefix(direct=direct, natural=natural)
-                table = pd.read_csv('test-data/results/n40' + aa + 'methods.csv', index_col=0)
-                true = np.array(pd.read_csv('test-data/results/n40' + aa + 'true.csv', index_col=0))[1]
-                val = np.array(table.loc[:, 'inf_' + method])
-                data[aa][method] = val - true
-
-    all_data_list = []
-    positions_list = []
-
-    offset = [-0.24, 0, 0.24]
-    group_center = [1, 2, 3, 4]
-
-    for j, method in enumerate(methods):
-        all_data = []
-        positions = []
-        for i, condition in enumerate(conditions):
-            all_data.append(data[condition][method])
-            positions.append(group_center[i] + offset[j])
-        all_data_list.append(all_data)
-        positions_list.append(positions)
-
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
-    for i, method in enumerate(methods):
-        flierprops = dict(marker='o', markerfacecolor=colors[i],
-                          markersize=5, markeredgecolor='none')
-        meanlineprops = dict(linestyle='--', color='red', linewidth=0.5)
-        medianlineprops = dict(linestyle='-', color='black', linewidth=0)
-        bp = ax.boxplot(all_data_list[i], positions=positions_list[i], notch=True,
-                        widths=0.22, patch_artist=True,
-                        showmeans=True, meanline=True, flierprops=flierprops,
-                        meanprops=meanlineprops, medianprops=medianlineprops,
-                        capprops=dict(color=colors[i]), whiskerprops=dict(color=colors[i]))
-        for patch in bp['boxes']:
-            patch.set_facecolor(colors[i])
-            patch.set_edgecolor('none')
-
-    x_ticks = []
-    for item in conditions:
-        x_ticks.append(symbol_dict[item])
-
-    ax.set_xticks(group_center, conditions)
-    ax.set_xticklabels(x_ticks, fontsize=15, fontweight='bold')
-    ax.set_ylabel('Bias', fontsize=15, fontweight='bold', labelpad=10)
-    ax.grid(linestyle='--', linewidth=0.5, color='gray', alpha=0.3)
-    ax.tick_params(axis='x', width=0)
-    ax.tick_params(axis='y', width=0)
-
-    from matplotlib.patches import Patch
-    legend_elements = [
-        Patch(facecolor='#1f77b4', label='Doubly Robust'),
-        Patch(facecolor='#ff7f0e', label='Oracle'),
-        Patch(facecolor='#2ca02c', label='Outcome Model\nRegression')
-    ]
-    # upper right for hmm, right for last two simu
-    fig.legend(handles=legend_elements, loc='upper right')
-    plt.tight_layout()
-    plt.savefig('test-data/boxplot.png', dpi=600, bbox_inches='tight')
-    # plt.savefig('test-data/boxplot.eps', format='eps', bbox_inches='tight')
     plt.show()
 
 
@@ -359,12 +294,11 @@ def check_path():
 if __name__ == '__main__':
     warnings.filterwarnings('ignore')
     check_path()
-    methods = ['true', 'est', 'ora', 'boots', 'ML']
+    methods = ['true', 'est', 'ora', 'IPW', 'ML']
     # methods = ['est', 'ora', 'ML']
     ind_size = 7
     make_table(ind_size=ind_size, methods=methods)
     lineplot()
     barplot()
-    # boxplot()
 
     exit(0)

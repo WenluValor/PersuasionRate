@@ -1,5 +1,5 @@
 import math
-from bound import (ora_bound, est_bound, boots_bound, ML_bound, empirical_bound)
+from bound import (ora_bound, est_bound, IPW_bound, ML_bound, empirical_bound)
 from poest import get_Yntn, setup
 import numpy as np
 import pandas as pd
@@ -52,9 +52,8 @@ def pr_bound(methods: list, rep: int, direct):
                     inf, sup, RR, v_inf, v_sup, v_RR = est_bound(po_num=est_num, direct=direct, natural=natural)
                 elif method == 'ora':
                     inf, sup, RR, v_inf, v_sup, v_RR = ora_bound(n_val=N, direct=direct, natural=natural)
-                elif method == 'boots':
-                    inf, sup, RR, v_inf, v_sup, v_RR = boots_bound(rep_B=200, sam_B=1000, po_num=est_num,
-                                                                   F=F, direct=direct, natural=natural)
+                elif method == 'IPW':
+                    inf, sup, RR, v_inf, v_sup, v_RR = IPW_bound(n_val=N, direct=direct, natural=natural)
                 elif method == 'ML':
                     inf, sup, RR, v_inf, v_sup, v_RR = ML_bound(n_val=N, direct=direct, natural=natural)
                 elif method == 'true':
@@ -91,14 +90,12 @@ def pr_bound(methods: list, rep: int, direct):
 
 def run():
     dt.check_path()
-    p = 5
+    p = 50
 
     for i in range(0, 7):
         n_val = round(10 ** (i / 2 + 1))
         set_global(n_val=n_val, p_val=p)
-        # methods = ['est', 'ora', 'ML', 'boots']
-        methods = ['true', 'est', 'ora', 'ML', 'boots']
-        # methods = ['ora']
+        methods = ['true', 'est', 'ora', 'ML', 'IPW']
         pr_bound(methods=methods, rep=500, direct=True)
         pr_bound(methods=methods, rep=500, direct=False)
 

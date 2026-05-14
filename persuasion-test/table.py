@@ -45,11 +45,11 @@ class Obj():
         mask = ((v_inf_dt < 10) & (v_sup_dt < 10) & (v_RR_dt < 10))
 
         self.inf = np.average(inf_dt[mask]) * 100
-        self.inf_se = np.average(np.sqrt(v_inf_dt[mask])) * 10000
+        self.inf_se = np.average(np.sqrt(v_inf_dt[mask])) * 100
         self.sup = np.average(sup_dt[mask]) * 100
-        self.sup_se = np.average(np.sqrt(v_sup_dt[mask])) * 10000
+        self.sup_se = np.average(np.sqrt(v_sup_dt[mask])) * 100
         self.rr = np.average(RR_dt[mask]) * 100
-        self.rr_se = np.average(np.sqrt(v_RR_dt[mask])) * 10000
+        self.rr_se = np.average(np.sqrt(v_RR_dt[mask])) * 100
 
 
 def create_list(natural):
@@ -60,7 +60,7 @@ def create_list(natural):
         if i <= 5:
             obj.method = 'est'
         elif i >= 18:
-            obj.method = 'boots'
+            obj.method = 'IPW'
         elif (i >= 6) & (i <= 11):
             obj.method = 'ora'
         else:
@@ -117,7 +117,7 @@ def create_table(type, natural):
             print('\multirow{2}{*}{\\textbf{Outcome Model}} ' + str1 + '\\\\')
             print(str2 + '\\\\ \\cline{2-7} ')
         elif i == 3:
-            print('\multirow{2}{*}{\\textbf{Bootstrap}} ' + str1 + '\\\\')
+            print('\multirow{2}{*}{\\textbf{IPW}} ' + str1 + '\\\\')
             print(str2 + '\\\\ \\hline ')
 
 
